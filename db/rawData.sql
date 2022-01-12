@@ -65,8 +65,8 @@ CREATE TABLE reviews (
   date bigint,
   summary varchar(255),
   body varchar(255),
-  recommend integer,
-  reported integer,
+  recommend boolean,
+  reported boolean,
   reviewer_name varchar(32),
   reviewer_email varchar(128),
   response text,
@@ -156,7 +156,7 @@ CREATE TABLE product (
 
 DROP TABLE IF EXISTS reviews_photos;
 
-CREATE TABLE review_photos (
+CREATE TABLE reviews_photos (
   id integer PRIMARY KEY,
   review_id integer,
   url text

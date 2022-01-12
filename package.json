@@ -7,8 +7,8 @@
     "test": "test",
     "start": "nodemon -server",
     "dropraw": "dropdb 'rawsdc'",
-    "createraw": "createdb 'rawsdc' && psql kenneth-bakke -h 127.0.0.1 -d rawsdc -f ./data/rawData.sql",
-    "loadraw": "psql kenneth-bakke -h 127.0.0.1 -d rawsdc -f ./data/copyRawData.sql",
+    "createraw": "createdb 'rawsdc' && psql kenneth-bakke -h 127.0.0.1 -d rawsdc -f ./db/rawData.sql",
+    "loadraw": "psql kenneth-bakke -h 127.0.0.1 -d rawsdc -f ./db/copyRawData.sql",
     "initializeRaw": "npm run dropraw && npm run createraw && npm run loadraw"
   },
   "repository": {
