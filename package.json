@@ -5,14 +5,19 @@
   "main": "index.js",
   "scripts": {
     "test": "test",
-    "start": "nodemon -server"
+    "start": "nodemon -server",
+    "dropraw": "dropdb 'rawsdc'",
+    "createraw": "createdb 'rawsdc' && psql kenneth-bakke -h 127.0.0.1 -d rawsdc -f ./data/rawData.sql",
+    "loadraw": "psql kenneth-bakke -h 127.0.0.1 -d rawsdc -f ./data/copyRawData.sql",
+    "initializeRaw": "npm run dropraw && npm run createraw && npm run loadraw"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Encantadore-Antonio/ratings-and-reviews-api.git"
   },
   "dependencies": {
-
+    "express":"4.17.2",
+    "postgres":"1.0.2"
   },
   "keywords": [
     "sql",
