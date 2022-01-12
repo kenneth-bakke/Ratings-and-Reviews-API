@@ -1,0 +1,36 @@
+{
+  "name": "ratings-and-reviews-api",
+  "version": "1.0.0",
+  "description": "ratings and reviews data api for e-commerce use",
+  "main": "index.js",
+  "scripts": {
+    "test": "test",
+    "start": "nodemon -server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Encantadore-Antonio/ratings-and-reviews-api.git"
+  },
+  "dependencies": {
+
+  },
+  "keywords": [
+    "sql",
+    "nosql",
+    "database",
+    "api",
+    "postgresql",
+    "cassandradb",
+    "e-commerce",
+    "hr",
+    "project-catwalk",
+    "sdc",
+    "system-design-capstone"
+  ],
+  "author": "Kenneth Bakke",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Encantadore-Antonio/ratings-and-reviews-api/issues"
+  },
+  "homepage": "https://github.com/Encantadore-Antonio/ratings-and-reviews-api#readme"
+}
