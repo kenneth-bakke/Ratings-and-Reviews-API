@@ -102,3 +102,9 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Ratings and Reviews Ignores
+ratings-and-reviews-api/pyvenv.cfg
+ratings-and-reviews-api/bin
+ratings-and-reviews-api/lib
+ratings-and-reviews-api/NoSQL Schema RRSDC.dmm
