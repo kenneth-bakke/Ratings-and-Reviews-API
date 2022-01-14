@@ -5,12 +5,12 @@ const sql = postgres({
   host: 'localhost',
   port: 5432,
   path: '',
-  database: 'rawsdc',
+  database: 'parsedsdc',
+  // database: 'rawsdc',
   username: 'kenneth-bakke',
   password: 'skank4life',
   max: 10,
   onnotice: console.log,
 })
-
 
 module.exports = sql;
