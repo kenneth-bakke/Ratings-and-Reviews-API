@@ -1,7 +1,5 @@
 const sql = require('../../db/index.js');
 
-
-
 module.exports = {
   selectReviews: async function(params, callback) {
     const { page, count, sort, product_id } = params;
@@ -40,30 +38,125 @@ module.exports = {
       console.error(err);
     }
   },
-  selectMetaData: async function(params, callback) {
-    const { product_id } = params;
-    console.log(params);
-    try {
-      const metaData = await sql`
-      SELECT c.name,
-      json_build_object(
-        'product_id', ${product_id},
-        'recommended', json_build_object(
+  insertReview: async function(params, callback) {
+    const {
+      product_id,
+      rating,
+      summary,
+      body,
+      recommend,
+      name,
+      email,
+      photos,
+      characteristics
+    } = params
 
-        )
-      )
-      FROM characteristics c
-      INNER JOIN characteristic_reviews cr on cr.review_id = c.product_id
-      INNER JOIN product p on p.id = c.product_id
-      INNER JOIN reviews r on p.id = r.product_id
+  },
+  createMetaData: async function(params, callback) {
+    const { product_id } = params;
+
+    try {
+      const characteristics = await sql`
+        SELECT
+          c.product_id,
+          (SELECT row_to_json(_) from (SELECT c.name) as _) as characteristics
+        FROM characteristics c
+        WHERE c.product_id = ${product_id};
       `
-      console.log(metaData);
+      const characteristic_reviews = await sql`
+        SELECT
+          c.name,
+          json_build_object('id', c.id, 'value', AVG(cr.value)) as details
+        FROM characteristic_reviews cr
+        JOIN characteristics c
+        ON c.id = cr.characteristic_id
+        WHERE c.product_id = ${product_id}
+        GROUP BY cr.id, c.id, c.name;
+      `
+      const ratingsAndRecommendations = await sql`
+        SELECT
+          r.rating, r.recommend
+        FROM reviews r
+        where r.product_id = ${product_id};
+      `
+
+      const metaData = {
+        product_id: characteristics[0].product_id,
+        ratings: {
+          1: 0,
+          2: 0,
+          3: 0,
+          4: 0,
+          5: 0
+        },
+        recommended: {
+          false: 0,
+          true: 0
+        },
+        characteristics: {}
+      }
+
+      const chars = characteristics.map(char => {
+        return char.characteristics.name
+      })
+
+      chars.forEach(char => {
+        metaData.characteristics[char] = {}
+        characteristic_reviews.forEach(review => {
+          if (review.name === char) {
+            metaData.characteristics[char].id = review.details.id
+            metaData.characteristics[char].value = review.details.value
+          }
+        })
+      })
+
+      ratingsAndRecommendations.forEach(rating => {
+        metaData.ratings[rating.rating] = metaData.ratings[rating.rating] + 1
+        metaData.recommended[rating.recommend] = metaData.recommended[rating.recommend] + 1
+      })
+
+      callback(null, metaData);
     } catch (err) {
-      console.error(err);
+      callback(err, null);
+    }
+  },
+  markReviewAsHelpful: async function(review_id, callback) {
+    try {
+      await sql`
+        UPDATE reviews r
+        SET helpfulness = helpfulness + 1
+        WHERE r.id = ${review_id}
+      `
+      callback(null);
+    } catch (err) {
+      callback(err);
+    }
+  },
+  markReviewAsReported: async function(review_id, callback) {
+    try {
+      await sql`
+        UPDATE reviews r
+        SET reported = true
+        WHERE r.id = ${review_id}
+      `
+      callback(null);
+    } catch (err) {
+      callback(err);
+    }
+  },
+  cancelReportReview: async function(review_id, callback) {
+    try {
+      await sql`
+        UPDATE reviews r
+        SET reported = false
+        WHERE r.id = ${review_id}
+      `
+      callback(null);
+    } catch (err) {
+      callback(err);
     }
   }
 }
-
 
 // metaData final
 // {
