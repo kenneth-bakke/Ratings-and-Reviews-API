@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS characteristic_reviews;
 
 CREATE TABLE characteristic_reviews (
-  id integer PRIMARY KEY,
+  id SERIAL,
   characteristic_id integer,
   review_id integer,
   value integer
@@ -10,7 +10,7 @@ CREATE TABLE characteristic_reviews (
 DROP TABLE IF EXISTS reviews;
 
 CREATE TABLE reviews (
-  id integer PRIMARY KEY,
+  id SERIAL,
   product_id integer,
   rating text,
   date bigint,
@@ -27,7 +27,7 @@ CREATE TABLE reviews (
 DROP TABLE IF EXISTS product;
 
 CREATE TABLE product (
-  id integer PRIMARY KEY,
+  id SERIAL,
   name varchar(32),
   slogan varchar(255),
   description text,
@@ -38,7 +38,7 @@ CREATE TABLE product (
 DROP TABLE IF EXISTS reviews_photos;
 
 CREATE TABLE reviews_photos (
-  id integer PRIMARY KEY,
+  id SERIAL,
   review_id integer,
   url text
 );
@@ -46,7 +46,7 @@ CREATE TABLE reviews_photos (
 DROP TABLE IF EXISTS characteristics;
 
 CREATE TABLE characteristics (
-  id integer PRIMARY KEY,
+  id SERIAL,
   product_id integer,
   name varchar(32)
 );

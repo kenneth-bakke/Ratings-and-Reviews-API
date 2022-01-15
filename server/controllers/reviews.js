@@ -14,12 +14,19 @@ module.exports = {
   },
   postReview: function(req, res) {
     const params = req.query;
-    model.reviews.insertReview(params, (err) => {
+    model.reviews.insertReview(params, (err, photos, review_id) => {
       if (err) {
         console.error(err);
         res.status(404);
+      } else {
+        model.reviews.insertPhotos(photos, review_id, (err) => {
+          if (err) {
+            console.error(err)
+          } else {
+            res.status(201).send("Created");
+          }
+        })
       }
-      res.status(201).send("Created");
     })
   },
   getMetaData: function(req, res) {
@@ -34,7 +41,7 @@ module.exports = {
     })
   },
   markAsHelpful: function(req, res) {
-    const {review_id} = req.query;
+    const {review_id} = req.params;
     model.reviews.markReviewAsHelpful(review_id, (err) => {
       if (err) {
         console.error(err);
@@ -45,7 +52,7 @@ module.exports = {
     })
   },
   reportReview: function(req, res) {
-    const {review_id} = req.query;
+    const {review_id} = req.params;
     model.reviews.markReviewAsReported(review_id, (err) => {
       if (err) {
         console.error(err);
@@ -56,7 +63,7 @@ module.exports = {
     })
   },
   cancelReport: function(req, res) {
-    const {review_id} = req.query;
+    const {review_id} = req.params;
     model.reviews.cancelReportReview(review_id, (err) => {
       if (err) {
         console.error(err);

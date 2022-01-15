@@ -109,10 +109,10 @@ CREATE TABLE review_metadata (
 --   true integer
 -- );
 
--- -- ---
--- -- Table 'rating'
--- --
--- -- ---
+-- -- -- ---
+-- -- -- Table 'rating'
+-- -- --
+-- -- -- ---
 
 -- DROP TABLE IF EXISTS rating;
 

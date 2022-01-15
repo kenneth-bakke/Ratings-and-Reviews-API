@@ -39,18 +39,43 @@ module.exports = {
     }
   },
   insertReview: async function(params, callback) {
-    const {
-      product_id,
-      rating,
-      summary,
-      body,
-      recommend,
-      name,
-      email,
-      photos,
-      characteristics
-    } = params
+    let review = {
+      product_id: Number(params.product_id),
+      rating: Number(params.rating),
+      summary: params.summary,
+      body: params.body,
+      recommend: Boolean(params.recommend),
+      reviewer_name: params.name,
+      reviewer_email: params.email
+    }
+    try {
+      const insertData = await sql`
+        INSERT INTO reviews
+        ${sql(review)}
+        ON CONFLICT DO NOTHING
+        RETURNING reviews.id;
+      `
+      callback(null, params.photos, insertData[0].id);
+    } catch (err) {
+      callback(err);
+    }
 
+  },
+  insertPhotos: async function(photos, review_id, callback) {
+    if (photos) {
+      try {
+        await sql`
+          INSERT INTO reviews_photos
+          ${photos}
+          ON CONFLICT DO NOTHING;
+        `
+        callback(null);
+      } catch (err) {
+        callback(err);
+      }
+    } else {
+      callback(null);
+    }
   },
   createMetaData: async function(params, callback) {
     const { product_id } = params;
@@ -63,12 +88,20 @@ module.exports = {
         FROM characteristics c
         WHERE c.product_id = ${product_id};
       `
+      const photos = await sql`
+        SELECT
+          json_agg(json_build_object('id', rp.id, 'url', rp.url)) as photos
+        FROM reviews_photos rp
+        INNER JOIN reviews r
+        ON r.id = rp.review_id
+        WHERE r.product_id = ${product_id};
+      `
       const characteristic_reviews = await sql`
         SELECT
           c.name,
           json_build_object('id', c.id, 'value', AVG(cr.value)) as details
         FROM characteristic_reviews cr
-        JOIN characteristics c
+        INNER JOIN characteristics c
         ON c.id = cr.characteristic_id
         WHERE c.product_id = ${product_id}
         GROUP BY cr.id, c.id, c.name;
@@ -93,7 +126,8 @@ module.exports = {
           false: 0,
           true: 0
         },
-        characteristics: {}
+        characteristics: {},
+        photos: []
       }
 
       const chars = characteristics.map(char => {
@@ -114,6 +148,8 @@ module.exports = {
         metaData.ratings[rating.rating] = metaData.ratings[rating.rating] + 1
         metaData.recommended[rating.recommend] = metaData.recommended[rating.recommend] + 1
       })
+
+      metaData.photos = photos[0].photos
 
       callback(null, metaData);
     } catch (err) {

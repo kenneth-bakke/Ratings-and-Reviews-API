@@ -11,5 +11,17 @@ module.exports = {
     } catch (err) {
       callback(err, null);
     }
+  },
+  selectProduct: async function(product_id, callback) {
+    try {
+      const product = await sql`
+        SELECT id, name, description, category, default_price
+        FROM product
+        WHERE product.id = ${product_id}
+      `
+      callback(null, product)
+    } catch (err) {
+      callback(err, null)
+    }
   }
 }
