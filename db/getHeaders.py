@@ -11,20 +11,20 @@ def getHeaders(files):
         print(field)
 
 files = [
-  './clean-data-1/characteristic_reviews.csv',
-  './clean-data-1/questions.csv',
-  './clean-data-2/reviews.csv',
-  './clean-data-2/styles.csv',
-  './clean-data-3/answers_photos.csv',
-  './clean-data-3/answers.csv',
-  './clean-data-3/product.csv',
-  './clean-data-3/reviews_photos.csv',
-  './clean-data-4/cart.csv',
-  './clean-data-4/characteristics.csv',
-  './clean-data-4/features.csv',
-  './clean-data-4/photos.csv',
-  './clean-data-4/related.csv',
-  './clean-data-4/skus.csv'
+  './clean-data/characteristic_reviews.csv',
+  './clean-data/questions.csv',
+  './clean-data/reviews.csv',
+  './clean-data/styles.csv',
+  './clean-data/answers_photos.csv',
+  './clean-data/answers.csv',
+  './clean-data/product.csv',
+  './clean-data/reviews_photos.csv',
+  './clean-data/cart.csv',
+  './clean-data/characteristics.csv',
+  './clean-data/features.csv',
+  './clean-data/photos.csv',
+  './clean-data/related.csv',
+  './clean-data/skus.csv'
 ]
 
 getHeaders(files)
