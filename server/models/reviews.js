@@ -149,7 +149,7 @@ module.exports = {
         metaData.recommended[rating.recommend] = metaData.recommended[rating.recommend] + 1
       })
 
-      metaData.photos = photos[0].photos
+      metaData.photos = photos[0].photos.filter(photo => photo.id)
 
       callback(null, metaData);
     } catch (err) {
