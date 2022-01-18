@@ -1,21 +1,13 @@
--- ---
--- Globals
--- ---
-
--- SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
--- SET FOREIGN_KEY_CHECKS=0;
-
--- ---
--- Table 'review'
---
--- ---
-
-DROP TABLE IF EXISTS reviews;
+DROP TABLE IF EXISTS reviews CASCADE;
+DROP TABLE IF EXISTS reviews_photos CASCADE;
+DROP TABLE IF EXISTS characteristics CASCADE;
+DROP TABLE IF EXISTS characteristic_reviews CASCADE;
+DROP VIEW IF EXISTS metadata CASCADE;
 
 CREATE TABLE reviews (
-  id SERIAL PRIMARY KEY,
+  id SERIAL,
   product_id integer,
-  rating integer,
+  rating text,
   date bigint,
   summary text,
   body text,
@@ -25,103 +17,50 @@ CREATE TABLE reviews (
   reviewer_email text,
   response text,
   helpfulness integer,
-  -- BEFORE LOAD WILL TRANSFORM THIS FROM reviews_photos.csv
-  photos text[]
+  photos text[],
+  PRIMARY KEY (id)
 );
 
--- ---
--- Table 'product'
---
--- ---
 
-DROP TABLE IF EXISTS products;
-
-CREATE TABLE products (
-  id SERIAL PRIMARY KEY,
-  campus varchar(20),
-  name varchar(64),
-  slogan varchar(255),
-  description varchar(255),
-  category varchar(32),
-  default_price decimal,
-  created_at bigint,
-  updated_at bigint
-);
--- SELECT to_timestamp(1195374767) <- example conversion query
-
-
--- ---
--- Table 'characteristic_reviews'
---
--- ---
-
-DROP TABLE IF EXISTS characteristic_reviews;
-
-CREATE TABLE IF NOT EXISTS characteristic_reviews (
-  id SERIAL PRIMARY KEY,
-  characteristic_id integer,
+CREATE TABLE reviews_photos (
+  id SERIAL,
   review_id integer,
-  value integer
+  url text,
+  PRIMARY KEY (id)
 );
 
--- ---
--- Table 'characteristics'
---
--- ---
-
-DROP TABLE IF EXISTS characteristics;
 
 CREATE TABLE characteristics (
-  id SERIAL PRIMARY KEY,
+  id SERIAL,
   product_id integer,
-  name varchar(32)
+  name varchar(32),
+  PRIMARY KEY (id)
 );
 
 
--- ---
--- Table 'review metadata'
---
--- ---
-
-DROP TABLE IF EXISTS review_metadata;
-
-CREATE TABLE review_metadata (
-  id SERIAL PRIMARY KEY,
-  review_id integer,
-  product_id integer,
-  ratings json DEFAULT '{}'::json,
-  recommend json DEFAULT '{}'::json,
-  characteristics json DEFAULT '{}'::json
+CREATE TABLE characteristic_reviews (
+  id SERIAL,
+  characteristic_id integer references characteristics (id),
+  review_id integer references reviews (id),
+  value integer,
+  PRIMARY KEY (id)
 );
 
 
--- -- ---
--- -- Table 'recommend'
--- --
--- -- ---
+CREATE OR REPLACE VIEW metadata AS
+SELECT c.product_id, c.name, r.rating, r.recommend, cr.value, rp.url, rp.review_id
+FROM characteristics c
+  JOIN (SELECT r.rating, r.recommend, r.product_id, r.id
+        FROM reviews r
+        GROUP BY id) r
+  ON c.product_id = r.product_id
+  JOIN (SELECT rp.url, rp.review_id
+        FROM reviews_photos rp
+        GROUP BY url, review_id) rp
+  ON rp.review_id = r.id
+  JOIN (SELECT cr.value, cr.characteristic_id
+        FROM characteristic_reviews cr
+        GROUP BY value, characteristic_id) cr
+  ON cr.characteristic_id = c.id;
 
--- DROP TABLE IF EXISTS recommend;
-
--- CREATE TABLE recommend (
---   id integer PRIMARY KEY,
---   product_d integer REFERENCES products(id),
---   false integer,
---   true integer
--- );
-
--- -- -- ---
--- -- -- Table 'rating'
--- -- --
--- -- -- ---
-
--- DROP TABLE IF EXISTS rating;
-
--- CREATE TABLE rating (
---   id integer PRIMARY KEY,
---   product_id integer REFERENCES products(id),
---   1 integer,
---   2 integer,
---   3 integer,
---   4 integer,
---   5 integer
--- );
+CREATE INDEX idx_reviews ON reviews (id);

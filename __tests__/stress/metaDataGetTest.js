@@ -1,7 +1,8 @@
 const http = require('k6/http');
 const { check, sleep } = require('k6');
 
-const URL = 'http://localhost:3002/api/reviews/meta/1';
+const mockId = Math.floor(Math.random() * (1000000 - 1 + 1)) + 1
+const URL = `http://localhost:3002/api/reviews/meta/${mockId}`;
 
 export const options = {
   vus: 100,
@@ -14,7 +15,7 @@ export const options = {
 
 const params = {
   body: {
-    product_id: 1
+    product_id: mockId
   },
   headers: {
     'Content-Type': 'application/json'

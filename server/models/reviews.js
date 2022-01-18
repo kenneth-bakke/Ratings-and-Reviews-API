@@ -32,11 +32,11 @@ module.exports = {
         count: count,
         results: reviews,
       }
-
       callback(null, formattedData);
     } catch (err) {
       console.error(err);
     }
+
   },
   insertReview: async function(params, callback) {
     let review = {
@@ -77,79 +77,18 @@ module.exports = {
       callback(null);
     }
   },
-  createMetaData: async function(params, callback) {
-    const { product_id } = params;
-
+  createMetaData: async function(product_id, callback) {
     try {
+
       const characteristics = await sql`
-        SELECT
-          c.product_id,
-          (SELECT row_to_json(_) from (SELECT c.name) as _) as characteristics
-        FROM characteristics c
-        WHERE c.product_id = ${product_id};
-      `
-      const photos = await sql`
-        SELECT
-          json_agg(json_build_object('id', rp.id, 'url', rp.url)) as photos
-        FROM reviews_photos rp
-        INNER JOIN reviews r
-        ON r.id = rp.review_id
-        WHERE r.product_id = ${product_id};
-      `
-      const characteristic_reviews = await sql`
-        SELECT
-          c.name,
-          json_build_object('id', c.id, 'value', AVG(cr.value)) as details
-        FROM characteristic_reviews cr
-        INNER JOIN characteristics c
-        ON c.id = cr.characteristic_id
-        WHERE c.product_id = ${product_id}
-        GROUP BY cr.id, c.id, c.name;
-      `
-      const ratingsAndRecommendations = await sql`
-        SELECT
-          r.rating, r.recommend
-        FROM reviews r
-        where r.product_id = ${product_id};
+      SELECT m.product_id, m.name, AVG(m.value), m.rating, m.recommend, m.url, m.review_id
+      FROM metadata m
+      WHERE m.product_id = ${product_id}
+      GROUP BY (m.product_id, m.name, m.rating, m.recommend, m.url, m.review_id)
+      ORDER BY (m.review_id);
       `
 
-      const metaData = {
-        product_id: characteristics[0].product_id,
-        ratings: {
-          1: 0,
-          2: 0,
-          3: 0,
-          4: 0,
-          5: 0
-        },
-        recommended: {
-          false: 0,
-          true: 0
-        },
-        characteristics: {},
-        photos: []
-      }
-
-      const chars = characteristics.map(char => {
-        return char.characteristics.name
-      })
-
-      chars.forEach(char => {
-        metaData.characteristics[char] = {}
-        characteristic_reviews.forEach(review => {
-          if (review.name === char) {
-            metaData.characteristics[char].id = review.details.id
-            metaData.characteristics[char].value = review.details.value
-          }
-        })
-      })
-
-      ratingsAndRecommendations.forEach(rating => {
-        metaData.ratings[rating.rating] = metaData.ratings[rating.rating] + 1
-        metaData.recommended[rating.recommend] = metaData.recommended[rating.recommend] + 1
-      })
-
-      metaData.photos = photos[0].photos.filter(photo => photo.id)
+      const metaData = buildMetaData(characteristics, product_id);
 
       callback(null, metaData);
     } catch (err) {
@@ -194,23 +133,51 @@ module.exports = {
   }
 }
 
-// metaData final
-// {
-//   product_id: int,
-//   ratings: {
-//     1:
-//     2:
-//     3:
-//     4:
-//     5:
-//   },
-//   recommend: {
-//     'true': int,
-//     'false': int
-//   },
-//   characteristics: {
-//     char1: string,
-//     char2: string,
-//     ...
-//   }
-// }
+const buildMetaData = function(characteristics, product_id) {
+  const metaData = {
+    product_id: product_id,
+    ratings: {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0
+    },
+    recommended: {
+      false: 0,
+      true: 0
+    },
+    characteristics: {},
+    photos: []
+  }
+
+  if (characteristics && characteristics.length > 0) {
+    let currentReview = null;
+    let photoCount = 0;
+    characteristics.forEach(characteristic => {
+      if (characteristic.review_id !== currentReview) {
+        currentReview = characteristic.review_id;
+        photoCount = 0;
+      }
+      const currentRating = Number(characteristic.rating);
+      const currentRecommendation = characteristic.recommend;
+      const currentCharacteristic = characteristic.name;
+      const avgCharacteristicValue = characteristic.avg;
+      const currentPhotoUrl = characteristic.url;
+
+      metaData.ratings[currentRating] = metaData.ratings[currentRating] + 1;
+      metaData.recommended[currentRecommendation] = metaData.recommended[currentRecommendation] + 1;
+      metaData.characteristics[currentCharacteristic] = {
+        id: product_id,
+        value: avgCharacteristicValue
+      };
+      metaData.photos.push({
+        id: photoCount + 1,
+        url: currentPhotoUrl
+        });
+      photoCount++;
+    });
+  }
+
+  return metaData;
+}

@@ -1,7 +1,7 @@
 const http = require('k6/http');
 const { check, sleep } = require('k6');
 
-const URL = 'http://localhost:3002/api/reviews/2/helpful';
+const URL = `http://localhost:3002/api/reviews/${Math.floor(Math.random() * (1000000 - 1 + 1)) + 1}/helpful`;
 
 export const options = {
   stages: [
