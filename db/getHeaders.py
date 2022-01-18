@@ -27,4 +27,5 @@ files = [
   './clean-data/skus.csv'
 ]
 
-getHeaders(files)
+if __name__ == "__main__":
+    getHeaders(files)
