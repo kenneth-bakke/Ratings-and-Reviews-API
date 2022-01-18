@@ -61,7 +61,7 @@ CREATE TABLE characteristic_reviews (
 );
 
 
-CREATE MATERIALIZED VIEW metadata AS
+CREATE OR REPLACE VIEW metadata AS
 SELECT c.product_id, r.rating, r.recommend, c.name, cr.value, rp.url, rp.review_id
 FROM characteristics c
 JOIN reviews r

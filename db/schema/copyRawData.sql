@@ -1,5 +1,5 @@
 COPY product
-FROM '/Users/kenneth-bakke/Documents/hack reactor/senior-phase/system-design-capstone/ratings-and-reviews-api/db/clean-data/product.csv'
+FROM '/home/ubuntu/sdc/ratings-and-reviews-api/db/clean-data/product.csv'
 DELIMITER ','
 CSV HEADER;
 
@@ -18,29 +18,29 @@ COPY reviews
   response,
   helpfulness
 )
-FROM '/Users/kenneth-bakke/Documents/hack reactor/senior-phase/system-design-capstone/ratings-and-reviews-api/db/clean-data/reviews.csv'
+FROM '/home/ubuntu/sdc/ratings-and-reviews-api/db/clean-data/reviews.csv'
 DELIMITER ','
 CSV HEADER;
 
 
 
 COPY reviews_photos
-FROM '/Users/kenneth-bakke/Documents/hack reactor/senior-phase/system-design-capstone/ratings-and-reviews-api/db/clean-data/reviews_photos.csv'
+FROM '/home/ubuntu/sdc/ratings-and-reviews-api/db/clean-data/reviews_photos.csv'
 DELIMITER ','
 CSV HEADER;
 
 COPY characteristics
-FROM '/Users/kenneth-bakke/Documents/hack reactor/senior-phase/system-design-capstone/ratings-and-reviews-api/db/clean-data/characteristics.csv'
+FROM '/home/ubuntu/sdc/ratings-and-reviews-api/db/clean-data/characteristics.csv'
 DELIMITER ','
 CSV HEADER;
 
 COPY characteristic_reviews
-FROM '/Users/kenneth-bakke/Documents/hack reactor/senior-phase/system-design-capstone/ratings-and-reviews-api/db/clean-data/characteristic_reviews.csv'
+FROM '/home/ubuntu/sdc/ratings-and-reviews-api/db/clean-data/characteristic_reviews.csv'
 DELIMITER ','
 CSV HEADER;
 
 -- COPY temporary
--- FROM '/Users/kenneth-bakke/Documents/hack reactor/senior-phase/system-design-capstone/ratings-and-reviews-api/db/clean-data/reviews_photos.csv'
+-- FROM '/home/ubuntu/sdc/ratings-and-reviews-api/db/clean-data/reviews_photos.csv'
 -- DELIMITER ','
 -- CSV HEADER;
 
