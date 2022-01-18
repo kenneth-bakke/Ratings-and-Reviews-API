@@ -1,7 +1,7 @@
 const http = require('k6/http');
 const { check, sleep } = require('k6');
 
-const URL = 'http://localhost:3002/api/reviews/meta';
+const URL = 'http://localhost:3002/api/reviews/meta/1';
 
 export const options = {
   vus: 100,
@@ -12,8 +12,17 @@ export const options = {
   ]
 }
 
+const params = {
+  body: {
+    product_id: 1
+  },
+  headers: {
+    'Content-Type': 'application/json'
+  }
+}
+
 export default function() {
-  let res = http.get(URL, {product_id: 1});
+  let res = http.get(URL);
   sleep(1);
   check(res, {
     'status was 200': (r) => r.status === 200
