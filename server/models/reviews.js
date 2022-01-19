@@ -81,14 +81,6 @@ module.exports = {
   createMetaData: async function(product_id, callback) {
     try {
 
-      // const characteristics = await sql`
-      // SELECT m.product_id, m.name, AVG(m.value), m.rating, m.recommend, m.url, m.review_id
-      // FROM metadata m
-      // WHERE m.product_id = ${product_id}
-      // GROUP BY (m.product_id, m.name, m.rating, m.recommend, m.url, m.review_id)
-      // ORDER BY (m.review_id);
-      // `
-
       const characteristics = await sql`
       SELECT c.product_id, c.name, r.rating, r.recommend, cr.value, rp.url, rp.review_id
       FROM characteristics c
