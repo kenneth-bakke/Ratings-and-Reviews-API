@@ -8,7 +8,7 @@ router.get('/reviews/meta/:product_id', controller.reviews.getMetaData);
 router.post('/reviews', controller.reviews.postReview);
 router.put('/reviews/:review_id/helpful', controller.reviews.markAsHelpful);
 router.put('/reviews/:review_id/report', controller.reviews.reportReview);
-router.get('/test', controller.proudcts.test);
+router.get('/test', controller.products.test);
 // router.put('/reviews/:review_id/cancelReport', controller.reviews.cancelReport);
 
 module.exports = router;
