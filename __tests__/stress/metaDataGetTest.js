@@ -5,11 +5,14 @@ const mockId = Math.floor(Math.random() * (1000000 - 1 + 1)) + 1
 const URL = `http://localhost:3002/api/reviews/meta/${mockId}`;
 
 export const options = {
-  vus: 100,
   stages: [
-    { duration: '30s', target: 20 },
-    { duration: '1m30s', target: 10 },
-    { duration: '20s', target: 0 },
+    { duration: '10s', target: 1 },
+    { duration: '10s', target: 10 },
+    { duration: '10s', target: 100 },
+    // { duration: '10s', target: 1000 },
+    // { duration: '10s', target: 100 },
+    // { duration: '10s', target: 10 },
+    { duration: '30s', target: 0 },
   ]
 }
 

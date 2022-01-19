@@ -28,6 +28,7 @@ module.exports = {
       `
       const formattedData = {
         product: product_id,
+        // Add logic for page
         page: page,
         count: count,
         results: reviews,
@@ -55,7 +56,7 @@ module.exports = {
         ON CONFLICT DO NOTHING
         RETURNING reviews.id;
       `
-      callback(null, params.photos, insertData[0].id);
+      callback(null, params.photos, params.product_id);
     } catch (err) {
       callback(err);
     }
@@ -80,12 +81,30 @@ module.exports = {
   createMetaData: async function(product_id, callback) {
     try {
 
+      // const characteristics = await sql`
+      // SELECT m.product_id, m.name, AVG(m.value), m.rating, m.recommend, m.url, m.review_id
+      // FROM metadata m
+      // WHERE m.product_id = ${product_id}
+      // GROUP BY (m.product_id, m.name, m.rating, m.recommend, m.url, m.review_id)
+      // ORDER BY (m.review_id);
+      // `
+
       const characteristics = await sql`
-      SELECT m.product_id, m.name, AVG(m.value), m.rating, m.recommend, m.url, m.review_id
-      FROM metadata m
-      WHERE m.product_id = ${product_id}
-      GROUP BY (m.product_id, m.name, m.rating, m.recommend, m.url, m.review_id)
-      ORDER BY (m.review_id);
+      SELECT c.product_id, c.name, r.rating, r.recommend, cr.value, rp.url, rp.review_id
+      FROM characteristics c
+        JOIN (SELECT r.rating, r.recommend, r.product_id, r.id
+              FROM reviews r
+              GROUP BY id) r
+        ON c.product_id = r.product_id
+        JOIN (SELECT rp.url, rp.review_id
+              FROM reviews_photos rp
+              GROUP BY url, review_id) rp
+        ON rp.review_id = r.id
+        JOIN (SELECT cr.value, cr.characteristic_id
+              FROM characteristic_reviews cr
+              GROUP BY value, characteristic_id) cr
+        ON cr.characteristic_id = c.id
+        WHERE r.product_id = ${product_id};
       `
 
       const metaData = buildMetaData(characteristics, product_id);

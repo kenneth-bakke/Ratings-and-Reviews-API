@@ -46,21 +46,16 @@ CREATE TABLE characteristic_reviews (
   PRIMARY KEY (id)
 );
 
+CREATE INDEX idx_reviews_id ON reviews (id);
+CREATE INDEX idx_reviews_product ON reviews (product_id);
+CREATE INDEX idx_review_photo_id ON reviews_photos (review_id);
+CREATE INDEX idx_characteristics ON characteristics (product_id);
+CREATE INDEX idx_characteristic_reviews_id ON characteristic_reviews (characteristic_id);
 
-CREATE OR REPLACE VIEW metadata AS
-SELECT c.product_id, c.name, r.rating, r.recommend, cr.value, rp.url, rp.review_id
-FROM characteristics c
-  JOIN (SELECT r.rating, r.recommend, r.product_id, r.id
-        FROM reviews r
-        GROUP BY id) r
-  ON c.product_id = r.product_id
-  JOIN (SELECT rp.url, rp.review_id
-        FROM reviews_photos rp
-        GROUP BY url, review_id) rp
-  ON rp.review_id = r.id
-  JOIN (SELECT cr.value, cr.characteristic_id
-        FROM characteristic_reviews cr
-        GROUP BY value, characteristic_id) cr
-  ON cr.characteristic_id = c.id;
-
-CREATE INDEX idx_reviews ON reviews (id);
+CREATE TABLE metadata (
+  id SERIAL,
+  product_id integer,
+  ratings json,
+  recommended json,
+  characteristics json
+)
