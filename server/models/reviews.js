@@ -3,6 +3,9 @@ const sql = require('../../db/index.js');
 module.exports = {
   selectReviews: async function(params, callback) {
     const { page, count, sort, product_id } = params;
+    console.log(params);
+    const limit = count;
+    if (page && page > 1) {count *= page }
     try {
       const columns = [
         'product_id',
@@ -24,7 +27,8 @@ module.exports = {
         WHERE r.product_id = ${product_id}
         GROUP BY ${sql(columns)}
         ORDER BY ${sort}
-        LIMIT ${count}
+        OFFSET ${count}
+        LIMIT ${limit};
       `
       const formattedData = {
         product: product_id,
@@ -82,21 +86,17 @@ module.exports = {
     try {
 
       const characteristics = await sql`
-      SELECT c.product_id, c.name, r.rating, r.recommend, cr.value, rp.url, rp.review_id
-      FROM characteristics c
-        JOIN (SELECT r.rating, r.recommend, r.product_id, r.id
-              FROM reviews r
-              GROUP BY id) r
-        ON c.product_id = r.product_id
-        JOIN (SELECT rp.url, rp.review_id
-              FROM reviews_photos rp
-              GROUP BY url, review_id) rp
-        ON rp.review_id = r.id
-        JOIN (SELECT cr.value, cr.characteristic_id
-              FROM characteristic_reviews cr
-              GROUP BY value, characteristic_id) cr
-        ON cr.characteristic_id = c.id
-        WHERE r.product_id = ${product_id};
+      SELECT
+          m.product_id,
+          array_agg(m.characteristic_id) as characteristic_id,
+          array_agg(m.name) as characteristics,
+          array_agg(m.value) as values,
+          array_agg(m.rating) as ratings,
+          array_agg(m.recommend) as recommended
+      FROM metadata m
+      WHERE m.product_id = ${product_id}
+      GROUP BY (m.product_id, m.review_id)
+      ORDER BY m.review_id;
       `
 
       const metaData = buildMetaData(characteristics, product_id);
@@ -107,6 +107,7 @@ module.exports = {
     }
   },
   markReviewAsHelpful: async function(review_id, callback) {
+    console.log(review_id)
     try {
       await sql`
         UPDATE reviews r
@@ -144,8 +145,8 @@ module.exports = {
   }
 }
 
-const buildMetaData = function(characteristics, product_id) {
-  const metaData = {
+const buildMetaData = function(reviewData, product_id) {
+  const metaData =  {
     product_id: product_id,
     ratings: {
       1: 0,
@@ -159,36 +160,41 @@ const buildMetaData = function(characteristics, product_id) {
       true: 0
     },
     characteristics: {},
-    photos: []
   }
 
-  if (characteristics && characteristics.length > 0) {
-    let currentReview = null;
-    let photoCount = 0;
-    characteristics.forEach(characteristic => {
-      if (characteristic.review_id !== currentReview) {
-        currentReview = characteristic.review_id;
-        photoCount = 0;
-      }
-      const currentRating = Number(characteristic.rating);
-      const currentRecommendation = characteristic.recommend;
-      const currentCharacteristic = characteristic.name;
-      const avgCharacteristicValue = characteristic.avg;
-      const currentPhotoUrl = characteristic.url;
+  if (reviewData && reviewData.length > 0) {
 
-      metaData.ratings[currentRating] = metaData.ratings[currentRating] + 1;
-      metaData.recommended[currentRecommendation] = metaData.recommended[currentRecommendation] + 1;
-      metaData.characteristics[currentCharacteristic] = {
-        id: product_id,
-        value: avgCharacteristicValue
-      };
-      metaData.photos.push({
-        id: photoCount + 1,
-        url: currentPhotoUrl
-        });
-      photoCount++;
+    reviewData.forEach(review => {
+      const characteristicValues = review.values;
+      const reviewRating = Number(review.ratings[0]);
+      const reviewRecommendation = review.recommended[0];
+
+      let avgCounter = 0;
+      let avgSum = 0;
+      let cAvg = 0
+      // iterate through characteristics
+      review.characteristics.forEach((characteristic, i) => {
+        // if characteristic is the same as the next characteristic
+        if (review.characteristics[i + 1] === characteristic) {
+          // add the value at the same index to the sum and add 1 to the counter
+          avgSum += review.values[i];
+          avgCounter++
+        // if characteristic is not the same as the next characteristic
+        } else {
+          // calculate the average
+          cAvg = avgSum / avgCounter
+          // set that characteristic as a key with and object containig it's id and avg to metadata.characteristics object
+          metaData.characteristics[characteristic] = {
+            id: review.characteristic_id[0],
+            value: cAvg
+          };
+        }
+      })
+
+      metaData.ratings[reviewRating] = metaData.ratings[reviewRating] + 1;
+      metaData.recommended[reviewRecommendation] = metaData.recommended[reviewRecommendation] + 1;
     });
   }
-
+  console.log(metaData);
   return metaData;
 }
