@@ -20,5 +20,8 @@ module.exports = {
         res.status(200).send(product);
       }
     })
+  },
+  test: function(req, res) {
+    res.status(200).send('Test successfull');
   }
 }

@@ -17,7 +17,7 @@ CREATE TABLE reviews (
   reviewer_email text,
   response text,
   helpfulness integer,
-  photos text[],
+  photos json,
   PRIMARY KEY (id)
 );
 
@@ -51,11 +51,3 @@ CREATE INDEX idx_reviews_product ON reviews (product_id);
 CREATE INDEX idx_review_photo_id ON reviews_photos (review_id);
 CREATE INDEX idx_characteristics ON characteristics (product_id);
 CREATE INDEX idx_characteristic_reviews_id ON characteristic_reviews (characteristic_id);
-
-CREATE TABLE metadata (
-  id SERIAL,
-  product_id integer,
-  ratings json,
-  recommended json,
-  characteristics json
-)
