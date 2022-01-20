@@ -2,6 +2,7 @@ const sql = require('../../db/index.js');
 
 module.exports = {
   selectReviews: async function(params, callback) {
+    console.log(params);
     const { page, count, sort, product_id } = params;
     try {
       const columns = [
