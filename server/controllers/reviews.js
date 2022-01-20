@@ -8,6 +8,7 @@ module.exports = {
         console.error(err);
         res.send(404);
       } else {
+        console.log(req.rawHeaders);
         res.status(200).send(reviews);
       }
     })

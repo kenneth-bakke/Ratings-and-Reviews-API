@@ -2,9 +2,7 @@ const sql = require('../../db/index.js');
 
 module.exports = {
   selectReviews: async function(params, callback) {
-    console.log(params);
     const { page, count, sort, product_id } = params;
-    console.log(params);
     const limit = count;
     if (page && page > 1) {count *= page }
     try {
@@ -108,7 +106,6 @@ module.exports = {
     }
   },
   markReviewAsHelpful: async function(review_id, callback) {
-    console.log(review_id)
     try {
       await sql`
         UPDATE reviews r
@@ -196,6 +193,5 @@ const buildMetaData = function(reviewData, product_id) {
       metaData.recommended[reviewRecommendation] = metaData.recommended[reviewRecommendation] + 1;
     });
   }
-  console.log(metaData);
   return metaData;
 }
