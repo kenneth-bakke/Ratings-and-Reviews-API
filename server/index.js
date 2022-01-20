@@ -12,7 +12,10 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api', router);
-
+app.get('/', (req, res) => {
+  console.log(__dirname)
+  res.send(path.join(__dirname + '/public/loaderio-a68baefec179e56a0da846de453e9b55.txt'))
+})
 
 server.listen(port, "0.0.0.0", () => {
   console.log(`Listening on port: ${port}`)
