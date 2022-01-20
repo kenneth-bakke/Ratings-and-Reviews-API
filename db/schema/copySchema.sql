@@ -49,15 +49,17 @@ CREATE TABLE metadata AS
             GROUP BY value, characteristic_id) cr
       ON cr.characteristic_id = c.id;
 
-UPDATE reviews
-SET photos =  array_append(photos, (
-      SELECT json_build_object("id", reviews_photos.id, "url", reviews_photos.url)
-            FROM reviews_photos
-            WHERE reviews_photos.review_id = (
-                  SELECT id FROM reviews
-            )
-      )
-);
+
+-- Not syntactically correct but adding photos to a review will bring down times
+-- UPDATE reviews
+-- SET photos =  array_append(photos, (
+--       SELECT json_build_object("id", reviews_photos.id, "url", reviews_photos.url)
+--             FROM reviews_photos
+--             WHERE reviews_photos.review_id = (
+--                   SELECT id FROM reviews
+--             )
+--       )
+-- );
 
 
 DROP TABLE characteristic_reviews;
