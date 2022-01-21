@@ -22,7 +22,7 @@ module.exports = {
           ${sql(columns)},
           jsonb_agg(jsonb_build_object('id', rp.id, 'url', rp.url)) as photos
         FROM reviews r
-        INNER JOIN reviews_photos rp ON r.id = rp.id
+        INNER JOIN reviews_photos rp ON r.id = rp.review_id
         WHERE r.product_id = ${product_id}
         GROUP BY ${sql(columns)}
         ORDER BY ${sort}
