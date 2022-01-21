@@ -30,7 +30,7 @@ module.exports = {
     })
   },
   getMetaData: function(req, res) {
-    const {product_id} = req.params;
+    const {product_id} = req.query;
     model.reviews.createMetaData(product_id, (err, metaData) => {
       if (err) {
         console.error(err);
